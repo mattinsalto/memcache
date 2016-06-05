@@ -29,9 +29,8 @@ type Memcache struct {
 }
 
 //New inizializes MemoryCache
-func New(slidingExp bool, 
-		 expCallback ...func(string)) (memcache *Memcache) {
-			 
+func New(slidingExp bool, expCallback ...func(string)) (memcache *Memcache) {
+
 	memcache = new(Memcache)
 	memcache.index = make(map[string]cacheitmwrpr)
 	memcache.slidingexp = slidingExp
@@ -40,9 +39,7 @@ func New(slidingExp bool,
 }
 
 //Set a cache item and its expiration
-func (memcache *Memcache) Set(cacheID string,
-							  cache interface{},
-							  duration time.Duration) {
+func (memcache *Memcache) Set(cacheID string, cache interface{}, duration time.Duration) {
 
 	cw := cacheitmwrpr{
 		cacheitmID: cacheID,
@@ -60,8 +57,7 @@ Get a cache item by cacheID
 If sliding expiration of the memory cache is true,
 cache item expiration will be renewed
 */
-func (memcache *Memcache) Get(cacheID string) (cache interface{}, 
-											   err error) {
+func (memcache *Memcache) Get(cacheID string) (cache interface{}, err error) {
 
 	cw, exists := memcache.index[cacheID]
 	if !exists {
@@ -78,14 +74,13 @@ func (memcache *Memcache) Get(cacheID string) (cache interface{},
 /*
 TTL sets automatic deletion of a cache item when duration expires
 This function is only for renewing expiration on non sliding expiration cache items.
-When setting a cache item, the expiration is set and in case 
+When setting a cache item, the expiration is set and in case
 memory cache sliding expiration is true, cache item expiration is renewed
-automatically every time a cache item is requested. So there is no need 
-to call this function unless you want to renew the expiration 
-of non sliding expiration cache items. 
+automatically every time a cache item is requested. So there is no need
+to call this function unless you want to renew the expiration
+of non sliding expiration cache items.
 */
-func (memcache *Memcache) TTL(cacheID string, 
-							  duration time.Duration) (err error) {
+func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error) {
 
 	cw, err := getCachewrpr(cacheID, memcache)
 	if err != nil {
@@ -108,9 +103,8 @@ func (memcache *Memcache) Expire(cacheID string) (err error) {
 }
 
 //Gets a cache item wraper by cacheID from memory cache
-func getCachewrpr(cacheID string, 
-				  memcache *Memcache) (cw cacheitmwrpr, err error) {
-					  
+func getCachewrpr(cacheID string, memcache *Memcache) (cw cacheitmwrpr, err error) {
+
 	cw, exists := memcache.index[cacheID]
 	if !exists {
 		err = fmt.Errorf("There is no cache in memory with ID: %s", cacheID)
