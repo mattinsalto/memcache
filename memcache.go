@@ -39,11 +39,11 @@ func New(slidingExp bool, expCallback ...func(string)) (memcache *Memcache) {
 }
 
 //Set a cache item and its expiration
-func (memcache *Memcache) Set(cacheID string, cache interface{}, duration time.Duration) {
+func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration time.Duration) {
 
 	cw := cacheitmwrpr{
 		cacheitmID: cacheID,
-		cacheitm:   cache,
+		cacheitm:   cacheitm,
 		duration:   duration,
 		exptimer:   time.NewTimer(duration)}
 
@@ -57,7 +57,7 @@ Get a cache item by cacheID
 If sliding expiration of the memory cache is true,
 cache item expiration will be renewed
 */
-func (memcache *Memcache) Get(cacheID string) (cache interface{}, err error) {
+func (memcache *Memcache) Get(cacheID string) (cacheitm interface{}, err error) {
 
 	cw, exists := memcache.index[cacheID]
 	if !exists {
