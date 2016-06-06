@@ -12,6 +12,7 @@ type cacheitmwrpr struct {
 	cacheitm   interface{}
 	duration   time.Duration
 	exptimer   *time.Timer
+	expiration time.Time
 }
 
 /*
@@ -45,7 +46,8 @@ func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration tim
 		cacheitmID: cacheID,
 		cacheitm:   cacheitm,
 		duration:   duration,
-		exptimer:   time.NewTimer(duration)}
+		exptimer:   time.NewTimer(duration),
+		expiration: time.Now().Add(duration)}
 
 	cw.ttl(memcache)
 
@@ -101,6 +103,17 @@ func (memcache *Memcache) Expire(cacheID string) (err error) {
 	return
 }
 
+//Expiration indicates cached item expiration date
+func (memcache *Memcache) Expiration(cacheID string) (expdate time.Time, err error) {
+
+	cw, err := getCacheitmwrpr(cacheID, memcache)
+	if err != nil {
+		return
+	}
+
+	return cw.expiration, nil
+}
+
 //Gets a cache item wraper by cacheID from memory cache
 func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw cacheitmwrpr, err error) {
 
@@ -116,6 +129,7 @@ func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw cacheitmwrpr, err e
 func (cw cacheitmwrpr) ttl(memcache *Memcache) {
 	go func() {
 		cw.exptimer.Reset(cw.duration)
+		cw.expiration = time.Now().Add(cw.duration)
 		<-cw.exptimer.C
 		cw.expire(memcache)
 	}()
