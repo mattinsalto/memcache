@@ -59,9 +59,8 @@ cache item expiration will be renewed
 */
 func (memcache *Memcache) Get(cacheID string) (cacheitm interface{}, err error) {
 
-	cw, exists := memcache.index[cacheID]
-	if !exists {
-		err = fmt.Errorf("There is no cache in memory with ID: %s", cacheID)
+	cw, err := getCacheitmwrpr(cacheID, memcache)
+	if err != nil {
 		return
 	}
 	if memcache.slidingexp {
@@ -82,7 +81,7 @@ of non sliding expiration cache items.
 */
 func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error) {
 
-	cw, err := getCachewrpr(cacheID, memcache)
+	cw, err := getCacheitmwrpr(cacheID, memcache)
 	if err != nil {
 		return
 	}
@@ -94,7 +93,7 @@ func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error
 //Expire a cache item from memory cache
 func (memcache *Memcache) Expire(cacheID string) (err error) {
 
-	cw, err := getCachewrpr(cacheID, memcache)
+	cw, err := getCacheitmwrpr(cacheID, memcache)
 	if err != nil {
 		return
 	}
@@ -103,7 +102,7 @@ func (memcache *Memcache) Expire(cacheID string) (err error) {
 }
 
 //Gets a cache item wraper by cacheID from memory cache
-func getCachewrpr(cacheID string, memcache *Memcache) (cw cacheitmwrpr, err error) {
+func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw cacheitmwrpr, err error) {
 
 	cw, exists := memcache.index[cacheID]
 	if !exists {
