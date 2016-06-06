@@ -1,3 +1,7 @@
+/*Package memcache is a memory cache to store a collection of any kind of struct in memory for a given duration.
+Cached items are indexed by a unique string.
+It has the option to sliding expiration. If it's on, the expiration of the cached items
+will be renewed each time the item is requested. */
 package memcache
 
 import (
@@ -6,7 +10,7 @@ import (
 )
 
 //Cache item wrapper is the struct stored in memory cache.
-//It holds the struct to be stored plus needed properties for cache expiration
+//It holds the struct to be stored plus needed properties for cache item expiration
 type cacheitmwrpr struct {
 	cacheitmID string
 	cacheitm   interface{}
@@ -24,7 +28,7 @@ expcallback (optional): is one or various functions that will be called when a c
 and is removed from the memory cache
 */
 type Memcache struct {
-	index       map[string]cacheitmwrpr
+	index       map[string]*cacheitmwrpr
 	slidingexp  bool
 	expcallback []func(string)
 }
@@ -33,7 +37,7 @@ type Memcache struct {
 func New(slidingExp bool, expCallback ...func(string)) (memcache *Memcache) {
 
 	memcache = new(Memcache)
-	memcache.index = make(map[string]cacheitmwrpr)
+	memcache.index = make(map[string]*cacheitmwrpr)
 	memcache.slidingexp = slidingExp
 	memcache.expcallback = expCallback
 	return
@@ -42,7 +46,7 @@ func New(slidingExp bool, expCallback ...func(string)) (memcache *Memcache) {
 //Set a cache item and its expiration
 func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration time.Duration) {
 
-	cw := cacheitmwrpr{
+	cw := &cacheitmwrpr{
 		cacheitmID: cacheID,
 		cacheitm:   cacheitm,
 		duration:   duration,
@@ -115,28 +119,30 @@ func (memcache *Memcache) Expiration(cacheID string) (expdate time.Time, err err
 }
 
 //Gets a cache item wraper by cacheID from memory cache
-func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw cacheitmwrpr, err error) {
+func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw *cacheitmwrpr, err error) {
 
 	cw, exists := memcache.index[cacheID]
 	if !exists {
 		err = fmt.Errorf("There is no cache in memory with ID: %s", cacheID)
-		return
+		return nil, err
 	}
-	return
+	return cw, nil
 }
 
 //Sets automatic deletion of a cache item wraper from memory cache when duration expires
-func (cw cacheitmwrpr) ttl(memcache *Memcache) {
+func (cw *cacheitmwrpr) ttl(memcache *Memcache) {
+
+	cw.expiration = time.Now().Add(cw.duration)
+
 	go func() {
 		cw.exptimer.Reset(cw.duration)
-		cw.expiration = time.Now().Add(cw.duration)
 		<-cw.exptimer.C
 		cw.expire(memcache)
 	}()
 }
 
 //Removes cache item wraper from memory cache
-func (cw cacheitmwrpr) expire(memcache *Memcache) {
+func (cw *cacheitmwrpr) expire(memcache *Memcache) {
 	delete(memcache.index, cw.cacheitmID)
 	if len(memcache.expcallback) > 0 {
 		memcache.expcallback[0](cw.cacheitmID)
