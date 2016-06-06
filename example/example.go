@@ -1,3 +1,25 @@
+/*
+There are two kinds of memory cache:
+
+1. Memory cache with sliding expiration:
+Cached items will expire on time unless
+they are requested. They will renew expiration time by duration
+each time they are requested.
+
+2. Non sliding expiration memory cache:
+Cached items will expire on time.
+If you want to renew expiration time, you must do it manually
+calling Memcache.TTL(cacheID string, duration time.Duration)
+
+For this example we will store a session structs in the cache. It could be any type.
+But memcache is specially useful for sessions in a web app or web api.
+We can store the session in the database when its created,
+but use the cached one each time we receive a request with sessionID or token,
+avoiding unnecessary calls to the database. When cached item expires
+(session expires), we can log the logout date in previously saved
+session register in the database with the help of the expcallback function
+*/
+
 package main
 
 import (
@@ -9,30 +31,6 @@ import (
 	"github.com/mattinsalto/memcache"
 )
 
-/*
-There are two kinds of memory caches:
-
-1. Memory cache with sliding expiration:
-Cached items will expire on time unless
-they are requested. They will renew expiration time by duration
-each time they are requested.
-
-2. Non sliding expiration memory cache:
-Cached items will expire on time.
-If you want to renew expiration time, you must do it manually
-calling Memcache.TTL()
-
-*/
-
-/*
-For this example we will store a session structs in the cache. It could be any type.
-But memcache is specially useful for sessions in a web app or web api.
-We can store the session in the database when its created,
-but use the cached one each time we receive a request with sessionID or token,
-avoiding unnecessary calls to the database. When cached item expires
-(session expires), we can log the logout date in previously saved
-session register in the database with the help of the expcallback function
-*/
 type session struct {
 	user      string
 	name      string
@@ -42,8 +40,9 @@ type session struct {
 }
 
 /*
-This function will be called when a cache item has expired
-It's optional.
+This function will be called when a cache item has expired.
+Can be any void function witha string parámeter.
+It's optional, you can inizialize Memcache without it
 */
 func expcallback(cacheitmID string) {
 	fmt.Printf("Cache item with ID: %s has expired at %s \n", cacheitmID, time.Now())
