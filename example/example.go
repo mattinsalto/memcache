@@ -113,7 +113,7 @@ func main() {
 		//sessionOne is alive and we are extending its life for 10 seconds more
 		sessionOneInfo("123456", slidingExpCache)
 
-		//sessionTwo doesn't exist so we will see an error.
+		//sessionTwo has expired so doesn't exist hence will see an error.
 		//We could renew sessionTwo expiration by calling:
 		//nonslidingExpCache.TTL("654321", time.Second * 10) before its expiration
 		sessionTwoInfo("654321", nonslidingExpCache)
@@ -124,6 +124,7 @@ func main() {
 	reader.ReadString('\n')
 }
 
+//Gets sessionOne from memcache and shows its info
 func sessionOneInfo(cacheID string, slidingExpCache *memcache.Memcache) {
 	//Get session by cacheID
 	cacheitm, err := slidingExpCache.Get(cacheID)
@@ -140,6 +141,7 @@ func sessionOneInfo(cacheID string, slidingExpCache *memcache.Memcache) {
 	}
 }
 
+//Gets sessionTwo from memcache and shows its info
 func sessionTwoInfo(cacheID string, nonslidingExpCache *memcache.Memcache) {
 	//Get session by cacheID
 	cacheitm, err := nonslidingExpCache.Get(cacheID)
