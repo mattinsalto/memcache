@@ -10,7 +10,7 @@ import (
 )
 
 /*
-There are two kinds of memory caches:
+There are two kinds of memory cache:
 
 1. Memory cache with sliding expiration:
 Cached items will expire on time unless
