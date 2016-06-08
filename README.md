@@ -17,8 +17,8 @@ Memcache is a memory cache to store a collection of any kind of struct for a giv
     	    myCache := memcache.New(slidingexp, expcallback)
     	}
 	
-	func expcallback(cacheitmID string) {
-		fmt.Printf("Cache item with ID: %s has expired at %s \n", cacheitmID, time.Now())
+	func expcallback(cacheID string) {
+		fmt.Printf("Cache item with ID: %s has expired at %s \n", cacheID, time.Now())
 	}
 
  - *slidingexp* bool: indicates if cached items expiration will be renewed each time a cached item is requested.
