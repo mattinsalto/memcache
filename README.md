@@ -5,7 +5,15 @@ Memcache is a memory cache to store a collection of any kind of struct for a giv
 
 **Inizialization:**
 
-    myCache := memcache.New(slidingexp, expcallback)
+    package main
+    
+    import(
+	    "time"
+	    "github.com/mattinsalto/memcahe"
+    )
+	function main(){
+	    myCache := memcache.New(slidingexp, expcallback)
+	}
 
  - *slidingexp* bool: indicates if cached items expiration will be renewed each time a cached item is requested.
  
