@@ -1,5 +1,5 @@
 /*
-There are two kinds of memory cache:
+Memcache has two kinds of memory caches, both with TTL:
 
 1. Memory cache with sliding expiration:
 Cached items will expire on time unless
@@ -41,7 +41,7 @@ type session struct {
 
 /*
 This function will be called when a cache item has expired.
-Can be any void function witha string parámeter.
+Can be any void function with a string parámeter.
 It's optional, you can inizialize Memcache without it
 */
 func expcallback(cacheitmID string) {
@@ -99,10 +99,10 @@ func main() {
 		<-t.C
 		fmt.Println("------- 5 seconds elapsed: ", time.Now())
 
-		//sessionOne expiration time will be renewed by 10 seconds
+		//We request sessionOne, so its expiration time will be renewed by 10 seconds
 		sessionOneInfo("123456", slidingExpCache)
 
-		//sessionTwo will die in 3 seconds
+		//We request sessionTwo, but as sliding expiration is false, it will die in 3 seconds
 		sessionTwoInfo("654321", nonslidingExpCache)
 	}()
 

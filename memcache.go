@@ -1,7 +1,7 @@
 /*Package memcache is a memory cache to store a collection of any kind of struct in memory for a given duration.
 Cached items are indexed by a unique string.
 It has the option to sliding expiration. If it's on, the expiration of the cached items
-will be renewed each time the item is requested. */
+will be renewed each time the item are requested. */
 package memcache
 
 import (
@@ -20,12 +20,11 @@ type cacheitmwrpr struct {
 }
 
 /*
-Memcache is a memory cache which stores cache items indexed by ID
-index:  is the map storing references to cache item wraper structs
+Memcache memory cache.
+index:  is the map storing references to cache items
 slidingexp: indicates if the expiration of the cache is going to be renewed
             each time the cache is requested
 expcallback (optional): is one or various functions that will be called when a cache item expires
-and is removed from the memory cache
 */
 type Memcache struct {
 	index       map[string]*cacheitmwrpr
@@ -60,8 +59,8 @@ func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration tim
 
 /*
 Get a cache item by cacheID
-If sliding expiration of the memory cache is true,
-cache item expiration will be renewed
+If sliding expiration is true,
+expiration will be renewed
 */
 func (memcache *Memcache) Get(cacheID string) (cacheitm interface{}, err error) {
 
@@ -77,13 +76,13 @@ func (memcache *Memcache) Get(cacheID string) (cacheitm interface{}, err error) 
 }
 
 /*
-TTL sets automatic deletion of a cache item when duration expires
-This function is only for renewing expiration on non sliding expiration cache items.
+TTL sets automatic deletion of a cache item when duration expires.
+This function is only for renewing expiration when sliding expiration is off.
 When setting a cache item, the expiration is set and in case
 memory cache sliding expiration is true, cache item expiration is renewed
-automatically every time a cache item is requested. So there is no need
+automatically every time a item is requested. So there is no need
 to call this function unless you want to renew the expiration
-of non sliding expiration cache items.
+of non sliding expiration items.
 */
 func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error) {
 
@@ -96,7 +95,7 @@ func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error
 	return
 }
 
-//Expire a cache item from memory cache
+//Expire a cache item
 func (memcache *Memcache) Expire(cacheID string) (err error) {
 
 	cw, err := getCacheitmwrpr(cacheID, memcache)
@@ -118,7 +117,7 @@ func (memcache *Memcache) Expiration(cacheID string) (expdate time.Time, err err
 	return cw.expiration, nil
 }
 
-//Gets a cache item wraper by cacheID from memory cache
+//Gets a cache item wraper by cacheID
 func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw *cacheitmwrpr, err error) {
 
 	cw, exists := memcache.index[cacheID]
@@ -129,7 +128,7 @@ func getCacheitmwrpr(cacheID string, memcache *Memcache) (cw *cacheitmwrpr, err 
 	return cw, nil
 }
 
-//Sets automatic deletion of a cache item wraper from memory cache when duration expires
+//Sets automatic deletion of a cache item wraper when duration expires
 func (cw *cacheitmwrpr) ttl(memcache *Memcache) {
 
 	cw.expiration = time.Now().Add(cw.duration)
@@ -141,7 +140,7 @@ func (cw *cacheitmwrpr) ttl(memcache *Memcache) {
 	}()
 }
 
-//Removes cache item wraper from memory cache
+//Expires a cahe item wraper
 func (cw *cacheitmwrpr) expire(memcache *Memcache) {
 	delete(memcache.index, cw.cacheitmID)
 	if len(memcache.expcallback) > 0 {
