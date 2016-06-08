@@ -26,12 +26,31 @@ Memcache is a memory cache to store a collection of any kind of struct for a giv
 
     myCacheitm := myCache.Get(cacheID).(myCacheitmType)
 
-- *cacheID* string: uniquely identifies a cached item
+- *cacheID* string: cached item ID
 
 Type assertion is needed to convert empty interface in the cached item type.
 
 
-   
+**Renew cache item expiration manually:**
 
+This function is for renewing cached item expiration when sliding expiration is off.
 
+    myCacheitm.TTL(cacheID, duration)
 
+ - *cacheID* string: cached item ID
+ - *duration* time.Duration: duration for cache item expiration
+
+**Expire a cache item:**
+   Expires a cache item immediately.
+
+    myCacheitm.Expire(cacheID)
+
+ - *cacheID* string: cached item ID
+
+**Get expiration datetime of a cached item**
+
+    expDate := myCacheitm.Expiration(cacheID)
+
+ - *cacheID* string: cached item ID
+
+ - *expDate* time.Time: expiration date of a cached item
