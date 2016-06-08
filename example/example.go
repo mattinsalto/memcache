@@ -44,8 +44,8 @@ This function will be called when a cache item has expired.
 Can be any void function with a string parámeter.
 It's optional, you can inizialize Memcache without it
 */
-func expcallback(cacheitmID string) {
-	fmt.Printf("Cache item with ID: %s has expired at %s \n", cacheitmID, time.Now())
+func expcallback(cacheID string) {
+	fmt.Printf("Cache item with ID: %s has expired at %s \n", cacheID, time.Now())
 }
 
 func main() {

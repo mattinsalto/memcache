@@ -1,7 +1,6 @@
-/*Package memcache is a memory cache to store a collection of any kind of struct in memory for a given duration.
-Cached items are indexed by a unique string.
-It has the option to sliding expiration. If it's on, the expiration of the cached items
-will be renewed each time the item are requested. */
+/*Package memcache is a memory cache to store a collection of any kind of struct for a given duration.
+Cached items are indexed by a unique string and it has the option to sliding expiration.
+If it's on, the expiration of the cached items will be renewed each time the items are requested. */
 package memcache
 
 import (
