@@ -68,3 +68,8 @@ This function is for renewing cached item expiration when sliding expiration is 
  - *cacheID* string: cached item ID
 
  - *expDate* time.Time: expiration date of a cached item
+
+
+----------
+There is a working example in:
+[https://github.com/mattinsalto/memcache/blob/master/example/example.go]
