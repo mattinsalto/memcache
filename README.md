@@ -1,6 +1,6 @@
 #Memcache for go
 
-Memcache is a memory cache to store a collection of any kind of struct for a given duration. Cached items are indexed by a unique string (cacheID) and it has the option to sliding expiration. If it's on, the expiration of the cached items will be renewed each time the items are requested. 
+Memcache is a memory cache to store a collection of any kind of struct for a given duration (TTL). Cached items are indexed by a unique string (cacheID) and it has the option for sliding expiration. If it's on, the expiration of the cached items will be renewed each time the items are requested. 
 
 
 **Inizialization:**
