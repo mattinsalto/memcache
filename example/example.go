@@ -76,7 +76,11 @@ func main() {
 	fmt.Println("------- Program started at: ", time.Now())
 
 	//We set two cache items
-	slidingExpCache.Set("123456", sessionOne, time.Second*10)
+	err := slidingExpCache.Set("123456", sessionOne, time.Second*10)
+	if err != nil {
+		println("Error setting the cache item: ", err.Error())
+	}
+
 	nonslidingExpCache.Set("654321", sessionTwo, time.Second*10)
 
 	//Expiration indicates cache item expiration date and time
