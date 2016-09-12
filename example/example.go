@@ -11,7 +11,7 @@ Cached items will expire on time.
 If you want to renew expiration time, you must do it manually
 calling Memcache.TTL(cacheID string, duration time.Duration)
 
-For this example we will store a session structs in the cache. It could be any type.
+For this example we will store session structs in the cache. It could be any type.
 But memcache is specially useful for sessions in a web app or web api.
 We can store the session in the database when its created,
 but use the cached one each time we receive a request with sessionID or token,
