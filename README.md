@@ -10,7 +10,7 @@ Memcache is a memory cache to store a collection of any kind of struct for a giv
     import(
 	    "fmt"
 	    "time"
-	    "github.com/mattinsalto/memcahe"
+	    "github.com/mattinsalto/memcache"
     )
 
     function main(){
