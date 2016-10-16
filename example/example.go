@@ -36,7 +36,7 @@ type session struct {
 	name      string
 	lastname  string
 	profileID int
-	//... any other info we need in session like permissions etc
+	//... any other info we need in session
 }
 
 /*
@@ -45,7 +45,7 @@ Can be any void function with a string parámeter.
 It's optional, you can inizialize Memcache without it
 */
 func expcallback(cacheitmID string) {
-	fmt.Printf("Cache item with ID: %s has expired at %s \n", cacheitmID, time.Now())
+	fmt.Printf("%s has expired at %s \n", cacheitmID, time.Now())
 }
 
 func main() {
@@ -67,31 +67,31 @@ func main() {
 	nonslidingExpCache := memcache.New(false, expcallback)
 
 	/*
-			We will set same duration for two sessions, but will store sessionOne in slidingExpCache
-		    and sessionTwo in nonslidingExpCache. So sessionOne will renew its expiration every time
-		    is requested and sessionTwo will die. Despite in this example we will store only one struct
-			in each memcache, you could store as many as you want.
+		We will set same duration for two sessions, but will store sessionOne in slidingExpCache
+		and sessionTwo in nonslidingExpCache. So sessionOne will renew its expiration every time
+		is requested and sessionTwo will die. Despite in this example we will store only one struct
+		in each memcache, you could store as many as you want.
 	*/
 
 	fmt.Println("------- Program started at: ", time.Now())
 
 	//We set two cache items
-	err := slidingExpCache.Set("123456", sessionOne, time.Second*10)
+	err := slidingExpCache.Set("sessionOne", sessionOne, time.Second*10)
 	if err != nil {
 		println("Error setting the cache item: ", err.Error())
 	}
 
-	nonslidingExpCache.Set("654321", sessionTwo, time.Second*10)
+	nonslidingExpCache.Set("sessionTwo", sessionTwo, time.Second*10)
 
 	//Expiration indicates cache item expiration date and time
-	expDate, err := slidingExpCache.Expiration("123456")
+	expDate, err := slidingExpCache.Expiration("sessionOne")
 	if err != nil {
 		fmt.Println("sessionOne expiration: ", err.Error())
 	} else {
 		fmt.Println("sessionOne expiration: ", expDate)
 	}
 
-	expDate, err = nonslidingExpCache.Expiration("654321")
+	expDate, err = nonslidingExpCache.Expiration("sessionTwo")
 	if err != nil {
 		fmt.Println("sessionTwo expiration: ", err)
 	} else {
@@ -104,10 +104,10 @@ func main() {
 		fmt.Println("------- 5 seconds elapsed: ", time.Now())
 
 		//We request sessionOne, so its expiration time will be renewed by 10 seconds
-		sessionOneInfo("123456", slidingExpCache)
+		sessionInfo("sessionOne", slidingExpCache)
 
 		//We request sessionTwo, but as sliding expiration is false, it will die in 3 seconds
-		sessionTwoInfo("654321", nonslidingExpCache)
+		sessionInfo("sessionTwo", nonslidingExpCache)
 	}()
 
 	go func() {
@@ -115,12 +115,12 @@ func main() {
 		<-t.C
 		fmt.Println("------- 10 seconds elapsed: ", time.Now())
 		//sessionOne is alive and we are extending its life for 10 seconds more
-		sessionOneInfo("123456", slidingExpCache)
+		sessionInfo("sessionOne", slidingExpCache)
 
 		//sessionTwo has expired so doesn't exist hence will see an error.
 		//We could renew sessionTwo expiration by calling:
 		//nonslidingExpCache.TTL("654321", time.Second * 10) before its expiration
-		sessionTwoInfo("654321", nonslidingExpCache)
+		sessionInfo("sessionTwo", nonslidingExpCache)
 	}()
 
 	//Wait for user input to terminate
@@ -128,36 +128,19 @@ func main() {
 	reader.ReadString('\n')
 }
 
-//Gets sessionOne from memcache and shows its info
-func sessionOneInfo(cacheID string, slidingExpCache *memcache.Memcache) {
+//Gets session from memcache and shows its info
+func sessionInfo(cacheID string, slidingExpCache *memcache.Memcache) {
 	//Get session by cacheID
 	cacheitm, err := slidingExpCache.Get(cacheID)
 	if err != nil {
-		println("sessionOne: ", err.Error())
+		fmt.Println(fmt.Sprintf("%s: ", cacheID), err.Error())
 	} else {
-		fmt.Println("sessionOne: ", cacheitm.(session))
+		fmt.Println(fmt.Sprintf("%s: ", cacheID), cacheitm.(session))
 		expDate, err := slidingExpCache.Expiration(cacheID)
 		if err != nil {
-			fmt.Println("sessionOne expiration: ", err)
+			fmt.Println(fmt.Sprintf("%s expiration: ", cacheID), err)
 		} else {
-			fmt.Println("sessionOne expiration: ", expDate)
-		}
-	}
-}
-
-//Gets sessionTwo from memcache and shows its info
-func sessionTwoInfo(cacheID string, nonslidingExpCache *memcache.Memcache) {
-	//Get session by cacheID
-	cacheitm, err := nonslidingExpCache.Get(cacheID)
-	if err != nil {
-		println("sessionTwo: ", err.Error())
-	} else {
-		fmt.Println("sessionTwo: ", cacheitm.(session))
-		expDate, err := nonslidingExpCache.Expiration(cacheID)
-		if err != nil {
-			fmt.Println("sessionTwo expiration: ", err)
-		} else {
-			fmt.Println("sessionTwo expiration: ", expDate)
+			fmt.Println(fmt.Sprintf("%s expiration: ", cacheID), expDate)
 		}
 	}
 }
