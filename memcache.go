@@ -1,11 +1,11 @@
-/*Package memcache is a memory cache to store a collection of any kind of struct in memory for a given duration.
-Cached items are indexed by a unique string.
-It has the option to sliding expiration. If it's on, the expiration of the cached items
-will be renewed each time the item are requested. */
+/*Package memcache is a memory cache to store a collection of any kind of struct for a given duration.
+Cached items are indexed by a unique string and it has the option to sliding expiration.
+If it's on, the expiration of the cached items will be renewed each time the items are requested. */
 package memcache
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -27,6 +27,7 @@ slidingexp: indicates if the expiration of the cache is going to be renewed
 expcallback (optional): is one or various functions that will be called when a cache item expires
 */
 type Memcache struct {
+	sync.Mutex
 	index       map[string]*cacheitmwrpr
 	slidingexp  bool
 	expcallback []func(string)
@@ -43,7 +44,16 @@ func New(slidingExp bool, expCallback ...func(string)) (memcache *Memcache) {
 }
 
 //Set a cache item and its expiration
-func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration time.Duration) {
+func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration time.Duration) (err error) {
+
+	memcache.Lock()
+	defer memcache.Unlock()
+
+	//Verify cacheID is not already set
+	_, err = getCacheitmwrpr(cacheID, memcache)
+	if err == nil {
+		return fmt.Errorf("The cacheID: %s already exists", cacheID)
+	}
 
 	cw := &cacheitmwrpr{
 		cacheitmID: cacheID,
@@ -55,6 +65,7 @@ func (memcache *Memcache) Set(cacheID string, cacheitm interface{}, duration tim
 	cw.ttl(memcache)
 
 	memcache.index[cacheID] = cw
+	return nil
 }
 
 /*
@@ -63,6 +74,8 @@ If sliding expiration is true,
 expiration will be renewed
 */
 func (memcache *Memcache) Get(cacheID string) (cacheitm interface{}, err error) {
+	memcache.Lock()
+	defer memcache.Unlock()
 
 	cw, err := getCacheitmwrpr(cacheID, memcache)
 	if err != nil {
@@ -85,6 +98,8 @@ to call this function unless you want to renew the expiration
 of non sliding expiration items.
 */
 func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error) {
+	memcache.Lock()
+	defer memcache.Unlock()
 
 	cw, err := getCacheitmwrpr(cacheID, memcache)
 	if err != nil {
@@ -97,6 +112,9 @@ func (memcache *Memcache) TTL(cacheID string, duration time.Duration) (err error
 
 //Expire a cache item
 func (memcache *Memcache) Expire(cacheID string) (err error) {
+
+	memcache.Lock()
+	defer memcache.Unlock()
 
 	cw, err := getCacheitmwrpr(cacheID, memcache)
 	if err != nil {
